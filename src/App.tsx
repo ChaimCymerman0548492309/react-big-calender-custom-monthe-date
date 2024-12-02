@@ -9,10 +9,10 @@ import {
 function App() {
   return (
     <div style={{ height: "95vh" }}>
-      {/* <BasicCalendar /> */}
+      <BasicCalendar />
       {/* <ControlCalendar /> */}
       {/* <CustomizingCalendar /> */}
-      <AdvancedCalendar />
+      {/* <AdvancedCalendar /> */}
     </div>
   );
 }

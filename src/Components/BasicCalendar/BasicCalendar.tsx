@@ -15,5 +15,6 @@ const events = [
 ];
 
 export default function BasicCalendar() {
-  return <Calendar events={events} />;
+  return <Calendar
+   events={events} />;
 }

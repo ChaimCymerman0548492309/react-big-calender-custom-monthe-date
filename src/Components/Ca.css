@@ -1,0 +1,21 @@
+.rbc-today-button-link {
+    border: 2px solid black !important;
+    /* Ensure it overrides other styles */
+}
+
+.rbc-button-link {
+    display: none;
+}
+
+.rbc-row-bg {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+
+}
+
+.rbc-row-bg>div {
+    margin: 2px;
+    margin-right: 70px;
+
+}
