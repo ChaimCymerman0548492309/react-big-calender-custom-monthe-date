@@ -16,5 +16,6 @@ const events = [
 
 export default function BasicCalendar() {
   return <Calendar
-   events={events} />;
+  //  events={events} 
+   />;
 }

@@ -19,3 +19,19 @@
     margin-right: 70px;
 
 }
+
+.rbc-day-slot.rbc-time-slot{
+    display: none;
+}
+
+.rbc-time-gutter.rbc-time-column{
+    display: none;
+}
+.rbc-time-slot >* >*{
+    display: none;
+    
+}
+.rbc-time-content > * > * > * > * >* >* {
+    display: none;
+
+}
