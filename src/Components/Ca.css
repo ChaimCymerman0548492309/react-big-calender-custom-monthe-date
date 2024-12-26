@@ -1,37 +1,29 @@
-.rbc-today-button-link {
-    border: 2px solid black !important;
-    /* Ensure it overrides other styles */
-}
 
-.rbc-button-link {
-    display: none;
-}
-
-.rbc-row-bg {
-    display: flex;
+.rbc-day-slot .rbc-event, .rbc-day-slot .rbc-background-event{
+    border: 1px solid #265985;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: grid
+;
+    max-height: 5%;
+    min-height: 20px;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: column wrap;
+    flex-flow: column wrap;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
     align-items: flex-start;
-    justify-content: space-around;
-
-}
-
-.rbc-row-bg>div {
+    overflow: visible;
+    position: static;
+    min-width: 100%;
     margin: 2px;
-    margin-right: 70px;
-
+    border-radius: 5px;
+    background-color: #aee4ff;
+    color: black;
 }
 
-.rbc-day-slot.rbc-time-slot{
-    display: none;
-}
-
-.rbc-time-gutter.rbc-time-column{
-    display: none;
-}
-.rbc-time-slot >* >*{
-    display: none;
-    
-}
-.rbc-time-content > * > * > * > * >* >* {
-    display: none;
-
-}
+.rbc-event {
+    cursor: move; /* Indicate draggable events */
+  }
+  

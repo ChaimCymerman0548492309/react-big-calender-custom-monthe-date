@@ -1,5 +1,7 @@
 import moment from "moment";
 import Calendar from "../Calendar";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 const events = [
   {
@@ -15,7 +17,10 @@ const events = [
 ];
 
 export default function BasicCalendar() {
-  return <Calendar
+  return  <DndProvider backend={HTML5Backend}> {/* Wrap the entire app with DndProvider */}
+  <Calendar />
+</DndProvider>
+  // <Calendar
   //  events={events} 
-   />;
+  //  />;
 }
