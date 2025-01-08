@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Calendar as BigCalendar,
   momentLocalizer,
+  Views,
 } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import moment from "moment";
@@ -13,7 +14,13 @@ const localizer = momentLocalizer(moment);
 
 const DragAndDropCalendar = withDragAndDrop(BigCalendar);
 
-const initialEvents = [
+interface CalendarEvent {
+  title: string;
+  start: Date;
+  end: Date;
+  allDay?: boolean;
+}
+const initialEvents: CalendarEvent[] = [
   {
     title: "All-day Event 1",
     start: new Date(new Date().setHours(8, 0, 0, 0)),
@@ -33,31 +40,45 @@ const initialEvents = [
 
 export default function Calendar() {
   const [events, setEvents] = useState(initialEvents);
+  const [currentView, setCurrentView] = useState<string>(Views.MONTH);
 
-  const onEventDrop = ({ event, start, end }) => {
+  const onEventDrop = ({ event , start, end } : { event : CalendarEvent, start : Date, end  : Date}) => {
     const updatedEvents = events.map((existingEvent) =>
       existingEvent === event ? { ...event, start, end } : existingEvent
     );
     setEvents(updatedEvents);
   };
 
-  const onEventResize = ({ event, start, end }) => {
+  const onEventResize = ({ event , start, end } : { event : CalendarEvent, start : Date, end  : Date}) => {
     const updatedEvents = events.map((existingEvent) =>
       existingEvent === event ? { ...event, start, end } : existingEvent
     );
     setEvents(updatedEvents);
   };
 
+  const handleViewChange = (view: string) => {
+    setCurrentView(view);
+  };
   return (
+    <>
+     {/* <style>
+        {currentView === "week" &&
+          `.rbc-day-slot .rbc-events-container { top: 50px; }`}
+        {currentView === "day" &&
+          `.rbc-day-slot .rbc-events-container { top: 30px;  }`}
+      </style> */}
     <DragAndDropCalendar
       localizer={localizer}
       events={events}
       showAllEvents
       showMultiDayTimes
-      onEventDrop={onEventDrop}
-      onEventResize={onEventResize}
+      // onEventDrop={onEventDrop}
+      // onEventResize={onEventResize}
       resizable
-      style={{ height: 500 }}
-    />
+      style={{ height: 600 }}
+      onView={handleViewChange}
+      className={`${currentView}`}
+      />
+      </>
   );
 }

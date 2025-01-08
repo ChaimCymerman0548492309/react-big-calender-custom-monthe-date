@@ -15,7 +15,7 @@
     -ms-flex-align: start;
     align-items: flex-start;
     overflow: visible;
-    position: static;
+    /* position: static;     */
     min-width: 100%;
     margin: 2px;
     border-radius: 5px;
@@ -24,6 +24,37 @@
 }
 
 .rbc-event {
-    cursor: move; /* Indicate draggable events */
+    /* cursor: move; Indicate draggable events */
+  }
+  
+
+.rbc-day-slot .rbc-event, .rbc-day-slot .rbc-background-event{
+    /* TODO העיצוב כמו בCTRL_SHIFT */
+    display: grid;
+    max-height: 5%;
+    min-height: 20px;
+    position: static;
+    min-width: 100%;
+    margin: 2px;
+    border-radius: 5px;
+    background-color: #aee4ff;
+    color: black;
+}
+
+/* Default styles for events container */
+.rbc-day-slot .rbc-events-container {
+    top: 0;
+  }
+  
+  /* Week view styles */
+  .week .rbc-day-slot .rbc-events-container {
+    top: 50px;
+    background-color: red;
+  }
+  
+  /* Day view styles */
+  .day .rbc-day-slot .rbc-events-container {
+    top: 30px;
+    background-color: aqua;
   }
   
