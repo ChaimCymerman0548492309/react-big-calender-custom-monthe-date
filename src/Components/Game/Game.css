@@ -1,0 +1,52 @@
+.App {
+    text-align: center;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-gap: 1px;
+    background: #333;
+    margin: 20px auto;
+  }
+  
+  .cell {
+    width: 30px;
+    height: 30px;
+    background: #000;
+    border: 1px solid #444;
+  }
+  /* Game.css */
+  .App {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* height: 100vh; */
+    background-image: url('https://www.vectorstock.com/royalty-free-vector/tetris-bricks-seamless-background-vector-7565319');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-template-rows: repeat(20, 30px);
+    gap: 2px;
+    margin-top: 20px;
+  }
+  
+  .cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+  }
+  
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+    
