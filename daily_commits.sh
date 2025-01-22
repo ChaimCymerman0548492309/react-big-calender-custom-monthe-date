@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if ! command -v git &> /dev/null
+then
+    echo "git could not be found. Please install Git and try again."
+    exit
+fi
+
+DAY=$(date +%u)
+
+if [ $DAY -eq 6 ] || [ $DAY -eq 7 ]; then
+    echo "יום שישי/שבת, לא מבצע קומיטים."
+    exit
+fi
+
+NUM_COMMITS=$((RANDOM % 10 + 1))
+
+cd C:\Users\PC1\Desktop\chaim_cymerman\react-big-calendar-tutorial\nano daily_commits.sh
+
+for i in $(seq 1 $NUM_COMMITS); do
+    COMMIT_MSG="Daily commit $i - $(date +%Y-%m-%d)"
+    git add .
+    git commit -m "$COMMIT_MSG"
+    echo "קומיט $i: $COMMIT_MSG"
+done
