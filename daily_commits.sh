@@ -15,7 +15,7 @@ fi
 
 NUM_COMMITS=$((RANDOM % 10 + 1))
 
-cd C:\Users\PC1\Desktop\chaim_cymerman\react-big-calendar-tutorial\nano daily_commits.sh
+cd C:\Users\PC1\Desktop\chaim_cymerman\react-big-calendar-tutorial
 
 for i in $(seq 1 $NUM_COMMITS); do
     COMMIT_MSG="Daily commit $i - $(date +%Y-%m-%d)"
