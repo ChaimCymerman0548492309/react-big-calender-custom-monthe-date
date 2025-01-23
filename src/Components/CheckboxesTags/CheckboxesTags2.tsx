@@ -66,7 +66,7 @@ const CheckboxesTags2 = () => {
       renderInput={(params) => (
         <TextField {...params} label="Movies" placeholder="Select movies" fullWidth />
       )}
-      sx={{ width: 500, '& .MuiChip-root': { fontSize: '0.875rem', lineHeight: 1.5 } }}
+      sx={{ width: 500, '& .MuiChip-root': { fontSize: '0.876rem', lineHeight: 1.5 } }}
     />
   );
 };
