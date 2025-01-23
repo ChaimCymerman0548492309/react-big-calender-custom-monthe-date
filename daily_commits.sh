@@ -17,6 +17,11 @@ NUM_COMMITS=$((RANDOM % 5 + 1))
 
 cd C:/Users/PC1/Desktop/chaim_cymerman/react-big-calendar-tutorial
 
+echo "Test commit for activity graph" >> test.txt
+git add test.txt
+git commit -m "Testing commit for activity graph"
+git push origin main
+
 for i in $(seq 1 $NUM_COMMITS); do
     COMMIT_MSG="Daily commit $i - $(date +%Y-%m-%d)"
     git add .
