@@ -13,7 +13,7 @@ if [ $DAY -eq 6 ] || [ $DAY -eq 7 ]; then
     exit
 fi
 
-NUM_COMMITS=$((RANDOM % 10 + 1))
+NUM_COMMITS=$((RANDOM % 5 + 1))
 
 cd C:/Users/PC1/Desktop/chaim_cymerman/react-big-calendar-tutorial
 
