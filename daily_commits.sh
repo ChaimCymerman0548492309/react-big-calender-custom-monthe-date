@@ -17,7 +17,7 @@ NUM_COMMITS=$((RANDOM % 5 + 1))
 
 cd C:/Users/PC1/Desktop/chaim_cymerman/react-big-calendar-tutorial
 
-echo "Test commit for activity graph" >> test.txt
+echo "Test commit for activity graph"$(NUM_COMMITS) >> test.txt
 git add test.txt
 git commit -m "Testing commit for activity graph"
 git push origin main
