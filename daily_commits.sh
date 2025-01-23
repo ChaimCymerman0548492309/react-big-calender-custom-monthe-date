@@ -21,6 +21,6 @@ for i in $(seq 1 $NUM_COMMITS); do
     COMMIT_MSG="Daily commit $i - $(date +%Y-%m-%d)"
     git add .
     git commit -m "$COMMIT_MSG"
-    git push 
+    git push origin main
     echo "קומיט $i: $COMMIT_MSG"
 done
