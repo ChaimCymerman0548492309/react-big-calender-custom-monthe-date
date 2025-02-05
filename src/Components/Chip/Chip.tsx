@@ -8,6 +8,7 @@ import {
   InputLabel,
   FormControl,
   Box,
+  SelectChangeEvent,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -30,23 +31,17 @@ const ChipWithPlus = styled(Chip)({
   cursor: 'pointer',
 });
 
-const allOptions = Array.from({ length: 10 }, (_, index) => `Option ${index + 1}`);
+const allOptions: string[] = Array.from({ length: 10 }, (_, index) => `Option ${index + 1}`);
 
 const ChipComp: React.FC = () => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [selectOpen, setSelectOpen] = useState(false);
+  const [selectOpen, setSelectOpen] = useState<boolean>(false);
 
-  const handleSelectChange = (event: any) => {
-    const {
-      target: { value },
-    } = event;
+  const handleSelectChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value as string[];
 
     if (value.includes('all')) {
-      if (selectedOptions.length === allOptions.length) {
-        setSelectedOptions([]);
-      } else {
-        setSelectedOptions(allOptions);
-      }
+      setSelectedOptions(selectedOptions.length === allOptions.length ? [] : allOptions);
     } else {
       setSelectedOptions(value);
     }
@@ -58,7 +53,7 @@ const ChipComp: React.FC = () => {
         <InputLabel id="multi-select-label">Select Options</InputLabel>
         <Box onClick={() => setSelectOpen(true)}>
           <FixedInputContainer>
-            {selectedOptions.slice(0, 2).map((value: string) => (
+            {selectedOptions.slice(0, 2).map((value) => (
               <ChipWithPlus key={value} label={value} />
             ))}
             {selectedOptions.length > 2 && (
@@ -78,16 +73,13 @@ const ChipComp: React.FC = () => {
           <MenuItem value="all">
             <Checkbox
               checked={selectedOptions.length === allOptions.length}
-              indeterminate={
-                selectedOptions.length > 0 &&
-                selectedOptions.length < allOptions.length
-              }
+              indeterminate={selectedOptions.length > 0 && selectedOptions.length < allOptions.length}
             />
             <ListItemText primary="Select All" />
           </MenuItem>
           {allOptions.map((option) => (
             <MenuItem key={option} value={option}>
-              <Checkbox checked={selectedOptions.indexOf(option) > -1} />
+              <Checkbox checked={selectedOptions.includes(option)} />
               <ListItemText primary={option} />
             </MenuItem>
           ))}

@@ -20,29 +20,29 @@ const events = [
   },
 ];
 
-const components = {
-  event: (props: any) => {
-    const eventType = props?.event?.data?.type;
-    switch (eventType) {
-      case "Reg":
-        return (
-          <div style={{ background: "yellow", color: "white", height: "100%" }}>
-            {props.title}
-          </div>
-        );
-      case "App":
-        return (
-          <div
-            style={{ background: "lightgreen", color: "white", height: "100%" }}
-          >
-            {props.title}
-          </div>
-        );
-      default:
-        return null;
-    }
-  },
-};
+// const components = {
+//   event: (props :) => {
+//     const eventType = props?.event?.data?.type;
+//     switch (eventType) {
+//       case "Reg":
+//         return (
+//           <div style={{ background: "yellow", color: "white", height: "100%" }}>
+//             {props.title}
+//           </div>
+//         );
+//       case "App":
+//         return (
+//           <div
+//             style={{ background: "lightgreen", color: "white", height: "100%" }}
+//           >
+//             {props.title}
+//           </div>
+//         );
+//       default:
+//         return null;
+//     }
+//   },
+// };
 
 export default function ControlCalendar() {
   // return <Calendar events={events} components={components} />;
