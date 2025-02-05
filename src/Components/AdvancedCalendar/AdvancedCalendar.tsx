@@ -45,5 +45,5 @@ const components = {
 };
 
 export default function ControlCalendar() {
-  return <Calendar events={events} components={components} />;
+  // return <Calendar events={events} components={components} />;
 }

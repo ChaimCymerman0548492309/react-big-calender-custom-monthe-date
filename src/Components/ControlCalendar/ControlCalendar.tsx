@@ -71,8 +71,8 @@ export default function ControlCalendar(): JSX.Element {
       style={{ height: "100%" }}
       selectable
       resizable
-      onEventDrop={onEventDrop}
-      onEventResize={onEventResize}
+      // onEventDrop={onEventDrop}
+      // onEventResize={onEventResize}
       defaultView="month"
       views={["month", "week", "day", "agenda"] as View[]}
       step={30}
@@ -81,23 +81,23 @@ export default function ControlCalendar(): JSX.Element {
       max={new Date(1970, 1, 1, 20, 0, 0)}
       defaultDate={new Date()}
       popup
-      tooltipAccessor={(event) => event.title}
-      onSelectEvent={(event: Event) => alert(`Event selected: ${event.title}`)}
-      onSelectSlot={(slotInfo: SlotInfo) =>
-        alert(
-          `Selected slot: ${slotInfo.start.toLocaleString()} - ${slotInfo.end.toLocaleString()}`
-        )
-      }
+      // tooltipAccessor={(event) => event.title}
+      // onSelectEvent={(event: Event) => alert(`Event selected: ${event.title}`)}
+      // onSelectSlot={(slotInfo: SlotInfo) =>
+      //   alert(
+      //     `Selected slot: ${slotInfo.start.toLocaleString()} - ${slotInfo.end.toLocaleString()}`
+      //   )
+      // }
       showMultiDayTimes
       drilldownView="agenda"
       formats={{
         dayFormat: "dddd, MMMM D",
       }}
-      eventPropGetter={(event: Event) => ({
-        style: {
-          backgroundColor: event.title === "Timed Event" ? "orange" : "blue",
-        },
-      })}
+      // eventPropGetter={(event: Event) => ({
+      //   style: {
+      //     backgroundColor: event.title === "Timed Event" ? "orange" : "blue",
+      //   },
+      // })}
     />
   );
 }

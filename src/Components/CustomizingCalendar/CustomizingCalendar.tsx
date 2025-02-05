@@ -17,9 +17,10 @@ const events = [
 
 export default function ControlCalendar() {
   return (
-    <Calendar
-      events={events}
-      formats={{ dayHeaderFormat: (date) => moment(date).format("dddd @ DD") }}
-    />
+    // <Calendar
+    //   events={events}
+    //   formats={{ dayHeaderFormat: (date) => moment(date).format("dddd @ DD") }}
+    // />
+    <></>
   );
 }
