@@ -12,6 +12,7 @@ import ReactThreeFiber from "./Components/react-three-fiber/ReactThreeFiber";
 import ChipComp from "./Components/Chip/Chip";
 import CheckboxesTags from "./Components/CheckboxesTags/CheckboxesTags";
 import CheckboxesTags2 from "./Components/CheckboxesTags/CheckboxesTags2";
+import AIFace from "./Components/AIFace/AIFace";
 
 function App() {
   return (
@@ -25,7 +26,8 @@ function App() {
     {/* <ReactThreeFiber/> */}
     {/* <ChipComp/> */}
     {/* <CheckboxesTags/> */}
-    <CheckboxesTags2></CheckboxesTags2>
+    {/* <CheckboxesTags2></CheckboxesTags2> */}
+    <AIFace/>
     </div>
   );
 }

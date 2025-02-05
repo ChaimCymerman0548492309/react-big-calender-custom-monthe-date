@@ -62,8 +62,8 @@ done
 rm test.txt
 
 # ביצוע PULL מהריפו
-git fetch origin
-git reset --hard origin/main
-git pull origin main
+# git fetch origin
+# git reset --hard origin/main
+# git pull origin main
 
 echo "All commits, pushes, and pull completed successfully."
