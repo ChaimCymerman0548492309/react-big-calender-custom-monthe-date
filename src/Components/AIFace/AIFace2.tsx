@@ -1,0 +1,365 @@
+import React, { useEffect, useRef, useState } from 'react';
+import * as faceapi from 'face-api.js';
+import { Grid, Paper, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, styled, CircularProgress, Tooltip } from '@mui/material';
+import { Box } from '@mui/material';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import * as THREE from 'three';
+import { FaceMesh } from '@mediapipe/face_mesh';
+import '@tensorflow/tfjs';
+
+// רקע עם תמונה סטטית מ-Unsplash
+const Background = styled('div')({
+  backgroundImage: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80)', // תמונה סטטית של טבע מרגיע
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  minHeight: '100vh',
+  padding: '20px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+// עיצוב כללי
+const StyledPaper = styled(Paper)({
+  padding: '20px',
+  backgroundColor: 'rgba(255, 255, 255, 0.9)', // רקע שקוף עם לבן
+  borderRadius: '15px',
+  boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', // צל יפה
+});
+
+const FaceDetection: React.FC<{ onExpressionsChange: (expressions: { [key: string]: number }) => void, isAutoMode: boolean }> = ({ onExpressionsChange, isAutoMode }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isCameraStarted, setIsCameraStarted] = useState(false);
+  const [isDetectionActive, setIsDetectionActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [faceMesh, setFaceMesh] = useState<FaceMesh | null>(null);
+
+  const loadModels = async () => {
+    try {
+      console.log("Loading models...");
+      setIsLoading(true);
+      await faceapi.nets.ssdMobilenetv1.loadFromUri('/models/face-api.js-models-master/face-api.js-models-master/ssd_mobilenetv1');
+      await faceapi.nets.faceExpressionNet.loadFromUri('/models/face-api.js-models-master/face-api.js-models-master/face_expression');
+      console.log("Models loaded successfully");
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Failed to load models:", err);
+      setIsLoading(false);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      console.log("Starting camera...");
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setIsCameraStarted(true);
+      console.log("Camera started successfully");
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+    }
+  };
+
+  const detectFaces = async () => {
+    if (videoRef.current && isCameraStarted) {
+      try {
+        console.log("Detecting faces...");
+        const detections = await faceapi.detectAllFaces(
+          videoRef.current,
+          new faceapi.SsdMobilenetv1Options()
+        ).withFaceExpressions();
+
+        if (detections.length > 0) {
+          const expressions = detections[0].expressions as unknown as { [key: string]: number };
+          onExpressionsChange(expressions); // Update expressions in parent component
+        }
+      } catch (err) {
+        console.error("Error detecting faces:", err);
+      }
+    }
+  };
+
+  const startDetection = async () => {
+    await loadModels();
+    await startCamera();
+    setIsDetectionActive(true);
+  };
+
+  useEffect(() => {
+    if (isAutoMode && isDetectionActive) {
+      const interval = setInterval(() => {
+        detectFaces();
+      }, 60000); // בדיקה כל דקה
+      return () => clearInterval(interval);
+    }
+  }, [isAutoMode, isDetectionActive]);
+
+  // מציאות רבודה (AR) עם Three.js
+  useEffect(() => {
+    if (videoRef.current && canvasRef.current) {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      const cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      camera.position.z = 5;
+
+      const animate = () => {
+        requestAnimationFrame(animate);
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+        renderer.render(scene, camera);
+      };
+
+      animate();
+    }
+  }, [videoRef, canvasRef]);
+
+  return (
+    <StyledPaper>
+      {isLoading && (
+        <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column" gap={2}>
+          <CircularProgress style={{ color: '#4CAF50' }} />
+          <Typography variant="body1" style={{ color: '#4CAF50' }}>טוען מודלים... אנא המתן</Typography>
+        </Box>
+      )}
+      <video ref={videoRef} autoPlay playsInline muted width="320" height="240" style={{ border: '2px solid #4CAF50', borderRadius: '10px', display: isCameraStarted ? 'block' : 'none' }} />
+      <canvas ref={canvasRef} style={{ display: isCameraStarted ? 'block' : 'none' }} />
+      {!isCameraStarted && !isLoading && (
+        <Button variant="contained" color="primary" onClick={startDetection} style={{ marginTop: '10px', backgroundColor: '#4CAF50' }}>
+          התחל ניטור מצב רוח
+        </Button>
+      )}
+      {isDetectionActive && !isAutoMode && (
+        <Button variant="contained" color="secondary" onClick={detectFaces} style={{ marginTop: '10px', backgroundColor: '#FF5722' }}>
+          בדוק את מצב הרוח שלי
+        </Button>
+      )}
+    </StyledPaper>
+  );
+};
+
+const MoodMessages: React.FC<{ expressions: { [key: string]: number }, addMoodRecord: (mood: string) => void }> = ({ expressions, addMoodRecord }) => {
+  const [joke, setJoke] = useState<string>("");
+  const [massge, setMassge] = useState<string>("");
+
+  const getRandomJoke = async () => {
+    const jokes = [
+      "למה התרנגול חצה את הכביש? כדי להגיע לצד השני!",
+      "איך קוראים לערפד עצוב? דם על הפנים.",
+      "למה התות לא הלך לבית הספר? כי הוא היה מרוח!"
+    ];
+    return jokes[Math.floor(Math.random() * jokes.length)];
+  };
+
+  const getDominantExpression = (expressions: { [key: string]: number }) => {
+    let dominantExpression = '';
+    let maxValue = 0;
+
+    for (const [expression, value] of Object.entries(expressions)) {
+      if (value > maxValue) {
+        maxValue = value;
+        dominantExpression = expression;
+      }
+    }
+
+    return dominantExpression;
+  };
+
+  useEffect(() => {
+    if (expressions.sad > 0.5) {
+      getRandomJoke().then((joke) => setJoke(joke));
+    }
+
+    const dominantExpression = getDominantExpression(expressions);
+    setMassge(dominantExpression);
+    addMoodRecord(dominantExpression); // Add mood record to history
+  }, [expressions]);
+
+  const getMessage = () => {
+    switch (massge) {
+      case 'happy':
+        return "אתה נראה שמח היום! 😊";
+      case 'sad':
+        return "לא נראה שהכול בסדר... אולי כדאי לקחת הפסקה? 🫂";
+      case 'angry':
+        return "היי, תירגע! הכל יהיה בסדר. 🌟";
+      case 'surprised':
+        return "וואו! נראה שהופתעת! 😮";
+      case 'disgusted':
+        return "משהו לא נראה לך טעים? 🤢";
+      case 'fearful':
+        return "אתה נראה מפוחד... הכל בסדר? 😨";
+      case 'neutral':
+        return "שיהיה לך יום נפלא! 🌞";
+      default:
+        return "מחפשים את ההבעה שלך... 🤔";
+    }
+  };
+
+  return (
+    <StyledPaper style={{ marginTop: '20px' }}>
+      <Typography variant="h4" gutterBottom style={{ color: '#4CAF50' }}>
+        {getMessage()}
+      </Typography>
+      <Typography variant="h6" style={{ color: '#FF5722' }}>
+        הודעת המערכת היא: {massge}
+      </Typography>
+      {expressions.sad > 0.5 && <Typography variant="body1" style={{ color: '#333' }}>{joke}</Typography>}
+    </StyledPaper>
+  );
+};
+
+const MoodHistoryTable: React.FC<{ history: { time: string, mood: string }[] }> = ({ history }) => {
+  const getEmoji = (mood: string) => {
+    switch (mood) {
+      case 'happy':
+        return '😊';
+      case 'sad':
+        return '😢';
+      case 'angry':
+        return '😠';
+      case 'surprised':
+        return '😮';
+      case 'disgusted':
+        return '🤢';
+      case 'fearful':
+        return '😨';
+      case 'neutral':
+        return '😐';
+      default:
+        return '🤔';
+    }
+  };
+
+  return (
+    <TableContainer component={StyledPaper} style={{ height: '100%', overflow: 'auto' }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell style={{ fontWeight: 'bold', color: '#4CAF50' }}>שעה</TableCell>
+            <TableCell style={{ fontWeight: 'bold', color: '#4CAF50' }}>מצב רוח</TableCell>
+            <TableCell style={{ fontWeight: 'bold', color: '#4CAF50' }}>אמוג'י</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {history.map((record, index) => (
+            <TableRow key={index}>
+              <TableCell>{record.time}</TableCell>
+              <TableCell>{record.mood}</TableCell>
+              <TableCell>{getEmoji(record.mood)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
+const MoodChart: React.FC<{ history: { time: string, mood: string }[] }> = ({ history }) => {
+  const moodToValue = (mood: string) => {
+    switch (mood) {
+      case 'happy':
+        return 5;
+      case 'neutral':
+        return 4;
+      case 'surprised':
+        return 3;
+      case 'sad':
+        return 2;
+      case 'angry':
+        return 1;
+      case 'disgusted':
+        return 1;
+      case 'fearful':
+        return 1;
+      default:
+        return 0;
+    }
+  };
+
+  const data = history.map((record) => ({
+    time: record.time,
+    moodValue: moodToValue(record.mood),
+  }));
+
+  return (
+    <StyledPaper style={{ marginTop: '20px', padding: '20px' }}>
+      <Typography variant="h5" style={{ color: '#4CAF50', textAlign: 'center' }}>
+        גרף מצב הרוח לאורך היום
+      </Typography>
+      <Typography variant="body1" style={{ color: '#4CAF50', textAlign: 'center' }}>
+        ציר ה-Y מציג את מצב הרוח שלך בצורה מספרית:
+        <br />
+        5 - שמח, 4 - ניטרלי, 3 - מופתע, 2 - עצוב, 1 - כועס/מבועת/נגעל
+      </Typography>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="time" />
+          <YAxis domain={[0, 5]} />
+          <RechartsTooltip />
+          <Legend />
+          <Line type="monotone" dataKey="moodValue" stroke="#4CAF50" strokeWidth={2} />
+        </LineChart>
+      </ResponsiveContainer>
+    </StyledPaper>
+  );
+};
+
+const AIFace2: React.FC = () => {
+  const [expressions, setExpressions] = useState<{ [key: string]: number }>({});
+  const [moodHistory, setMoodHistory] = useState<{ time: string, mood: string }[]>([]);
+  const [isAutoMode, setIsAutoMode] = useState(false);
+
+  const addMoodRecord = (mood: string) => {
+    const time = new Date().toLocaleTimeString();
+    setMoodHistory([...moodHistory, { time, mood }]);
+  };
+
+  return (
+    <Background>
+      <Grid container spacing={3} style={{ maxWidth: '1200px', margin: '0 auto', height: '90vh' }}>
+        <Grid item xs={12} md={6} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <Typography variant="h2" gutterBottom style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>
+            מראה חכמה
+          </Typography>
+          <Typography variant="h5" style={{ color: '#fff', textAlign: 'center' }}>
+            נטר את מצב הרוח שלך לאורך היום!
+          </Typography>
+          <Typography variant="body1" style={{ color: '#fff', textAlign: 'center' }}>
+            האפליקציה הזו תעזור לך לעקוב אחר מצב הרוח שלך לאורך היום. באמצעות טכנולוגיית זיהוי פנים, נוכל לזהות את ההבעה שלך ולעזור לך להבין איך אתה מרגיש.
+          </Typography>
+          <FaceDetection onExpressionsChange={setExpressions} isAutoMode={isAutoMode} />
+          {Object.keys(expressions).length > 0 && <MoodMessages expressions={expressions} addMoodRecord={addMoodRecord} />}
+          <Tooltip title="הניטור האוטומטי יבדוק את מצב הרוח שלך כל דקה ויעדכן את הטבלה והגרף באופן אוטומטי." arrow>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsAutoMode(!isAutoMode)}
+              style={{ backgroundColor: isAutoMode ? '#FF5722' : '#4CAF50' }}
+            >
+              {isAutoMode ? 'כבה ניטור אוטומטי' : 'הפעל ניטור אוטומטי'}
+            </Button>
+          </Tooltip>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <MoodHistoryTable history={moodHistory} />
+        </Grid>
+        <Grid item xs={12}>
+          <MoodChart history={moodHistory} />
+        </Grid>
+      </Grid>
+    </Background>
+  );
+};
+
+export default AIFace2;

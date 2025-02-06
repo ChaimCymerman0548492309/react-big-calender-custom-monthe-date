@@ -13,6 +13,7 @@ import ChipComp from "./Components/Chip/Chip";
 import CheckboxesTags from "./Components/CheckboxesTags/CheckboxesTags";
 import CheckboxesTags2 from "./Components/CheckboxesTags/CheckboxesTags2";
 import AIFace from "./Components/AIFace/AIFace";
+import AIFace2 from "./Components/AIFace/AIFace2";
 
 function App() {
   return (
@@ -27,7 +28,8 @@ function App() {
     {/* <ChipComp/> */}
     {/* <CheckboxesTags/> */}
     {/* <CheckboxesTags2></CheckboxesTags2> */}
-    <AIFace/>
+    {/* <AIFace/> */}
+    <AIFace2 />
     </div>
   );
 }
