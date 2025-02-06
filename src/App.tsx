@@ -28,8 +28,8 @@ function App() {
     {/* <ChipComp/> */}
     {/* <CheckboxesTags/> */}
     {/* <CheckboxesTags2></CheckboxesTags2> */}
-    {/* <AIFace/> */}
-    <AIFace2 />
+    <AIFace/>
+    {/* <AIFace2 /> */}
     </div>
   );
 }
