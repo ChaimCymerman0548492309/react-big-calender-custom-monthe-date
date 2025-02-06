@@ -3,9 +3,7 @@ import * as faceapi from 'face-api.js';
 import { Grid, Paper, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, styled, CircularProgress, Tooltip } from '@mui/material';
 import { Box } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
-import * as THREE from 'three';
-import { FaceMesh } from '@mediapipe/face_mesh';
-import '@tensorflow/tfjs';
+import CheckAge from './CheckAge';
 
 // רקע עם תמונה סטטית מ-Unsplash
 const Background = styled('div')({
@@ -29,11 +27,9 @@ const StyledPaper = styled(Paper)({
 
 const FaceDetection: React.FC<{ onExpressionsChange: (expressions: { [key: string]: number }) => void, isAutoMode: boolean }> = ({ onExpressionsChange, isAutoMode }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isCameraStarted, setIsCameraStarted] = useState(false);
   const [isDetectionActive, setIsDetectionActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [faceMesh, setFaceMesh] = useState<FaceMesh | null>(null);
 
   const loadModels = async () => {
     try {
@@ -97,32 +93,6 @@ const FaceDetection: React.FC<{ onExpressionsChange: (expressions: { [key: strin
     }
   }, [isAutoMode, isDetectionActive]);
 
-  // מציאות רבודה (AR) עם Three.js
-  useEffect(() => {
-    if (videoRef.current && canvasRef.current) {
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-      const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-      const cube = new THREE.Mesh(geometry, material);
-      scene.add(cube);
-
-      camera.position.z = 5;
-
-      const animate = () => {
-        requestAnimationFrame(animate);
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
-        renderer.render(scene, camera);
-      };
-
-      animate();
-    }
-  }, [videoRef, canvasRef]);
-
   return (
     <StyledPaper>
       {isLoading && (
@@ -132,7 +102,6 @@ const FaceDetection: React.FC<{ onExpressionsChange: (expressions: { [key: strin
         </Box>
       )}
       <video ref={videoRef} autoPlay playsInline muted width="320" height="240" style={{ border: '2px solid #4CAF50', borderRadius: '10px', display: isCameraStarted ? 'block' : 'none' }} />
-      <canvas ref={canvasRef} style={{ display: isCameraStarted ? 'block' : 'none' }} />
       {!isCameraStarted && !isLoading && (
         <Button variant="contained" color="primary" onClick={startDetection} style={{ marginTop: '10px', backgroundColor: '#4CAF50' }}>
           התחל ניטור מצב רוח
@@ -327,6 +296,7 @@ const AIFace2: React.FC = () => {
 
   return (
     <Background>
+        <CheckAge/>
       <Grid container spacing={3} style={{ maxWidth: '1200px', margin: '0 auto', height: '90vh' }}>
         <Grid item xs={12} md={6} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <Typography variant="h2" gutterBottom style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>
