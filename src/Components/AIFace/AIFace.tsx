@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
-import { Grid, Paper, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, styled, CircularProgress, Tooltip } from '@mui/material';
+import { Grid, Paper, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, styled, CircularProgress, Tooltip, TextField } from '@mui/material';
 import { Box } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import CheckAge from './CheckAge';
+import { auth } from './firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 // רקע עם תמונה סטטית מ-Unsplash
 const Background = styled('div')({
-  backgroundImage: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80)', // תמונה סטטית של טבע מרגיע
+  backgroundImage: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80)',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   minHeight: '100vh',
@@ -19,9 +22,9 @@ const Background = styled('div')({
 // עיצוב כללי
 const StyledPaper = styled(Paper)({
   padding: '20px',
-  backgroundColor: 'rgba(255, 255, 255, 0.9)', // רקע שקוף עם לבן
+  backgroundColor: 'rgba(255, 255, 255, 0.9)',
   borderRadius: '15px',
-  boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', // צל יפה
+  boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
 });
 
 const FaceDetection: React.FC<{ onExpressionsChange: (expressions: { [key: string]: number }) => void, isAutoMode: boolean }> = ({ onExpressionsChange, isAutoMode }) => {
@@ -69,7 +72,7 @@ const FaceDetection: React.FC<{ onExpressionsChange: (expressions: { [key: strin
 
         if (detections.length > 0) {
           const expressions = detections[0].expressions as unknown as { [key: string]: number };
-          onExpressionsChange(expressions); // Update expressions in parent component
+          onExpressionsChange(expressions);
         }
       } catch (err) {
         console.error("Error detecting faces:", err);
@@ -87,8 +90,7 @@ const FaceDetection: React.FC<{ onExpressionsChange: (expressions: { [key: strin
     if (isAutoMode && isDetectionActive) {
       const interval = setInterval(() => {
         detectFaces();
-      }, 5000); // בדיקה כל 5 שניות
-    //   }, 60000); // בדיקה כל דקה
+      }, 60000);
       return () => clearInterval(interval);
     }
   }, [isAutoMode, isDetectionActive]);
@@ -150,7 +152,7 @@ const MoodMessages: React.FC<{ expressions: { [key: string]: number }, addMoodRe
 
     const dominantExpression = getDominantExpression(expressions);
     setMassge(dominantExpression);
-    addMoodRecord(dominantExpression); // Add mood record to history
+    addMoodRecord(dominantExpression);
   }, [expressions]);
 
   const getMessage = () => {
@@ -284,10 +286,64 @@ const MoodChart: React.FC<{ history: { time: string, mood: string }[] }> = ({ hi
   );
 };
 
+const LoginRegister: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState<any | null | Error | string | unknown>();
+
+  const handleSubmit = async () => {
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+      } else {
+        await createUserWithEmailAndPassword(auth, email, password);
+      }
+      onLogin();
+    } catch (err) {
+      // setError(err);
+      console.error(err);
+
+    }
+  };
+
+  return (
+    <StyledPaper style={{ maxWidth: '400px', margin: 'auto', marginTop: '50px' }}>
+      <Typography variant="h5" gutterBottom>
+        {isLogin ? 'Login' : 'Register'}
+      </Typography>
+      {error && <Typography color="error">{error}</Typography>}
+      <TextField
+        label="Email"
+        type="email"
+        fullWidth
+        margin="normal"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <TextField
+        label="Password"
+        type="password"
+        fullWidth
+        margin="normal"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <Button variant="contained" color="primary" fullWidth onClick={handleSubmit}>
+        {isLogin ? 'Login' : 'Register'}
+      </Button>
+      <Button variant="text" fullWidth onClick={() => setIsLogin(!isLogin)}>
+        {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
+      </Button>
+    </StyledPaper>
+  );
+};
+
 const AIFace: React.FC = () => {
   const [expressions, setExpressions] = useState<{ [key: string]: number }>({});
   const [moodHistory, setMoodHistory] = useState<{ time: string, mood: string }[]>([]);
   const [isAutoMode, setIsAutoMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const addMoodRecord = (mood: string) => {
     const time = new Date().toLocaleTimeString();
@@ -296,37 +352,42 @@ const AIFace: React.FC = () => {
 
   return (
     <Background>
-      <Grid container spacing={3} style={{ maxWidth: '1200px', margin: '0 auto', height: '90vh' }}>
-        <Grid item xs={12} md={6} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <Typography variant="h2" gutterBottom style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>
-            מראה חכמה
-          </Typography>
-          <Typography variant="h5" style={{ color: '#fff', textAlign: 'center' }}>
-            נטר את מצב הרוח שלך לאורך היום!
-          </Typography>
-          <Typography variant="body1" style={{ color: '#fff', textAlign: 'center' }}>
-            האפליקציה הזו תעזור לך לעקוב אחר מצב הרוח שלך לאורך היום. באמצעות טכנולוגיית זיהוי פנים, נוכל לזהות את ההבעה שלך ולעזור לך להבין איך אתה מרגיש.
-          </Typography>
-          <FaceDetection onExpressionsChange={setExpressions} isAutoMode={isAutoMode} />
-          {Object.keys(expressions).length > 0 && <MoodMessages expressions={expressions} addMoodRecord={addMoodRecord} />}
-          <Tooltip title="הניטור האוטומטי יבדוק את מצב הרוח שלך כל דקה ויעדכן את הטבלה והגרף באופן אוטומטי." arrow>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsAutoMode(!isAutoMode)}
-              style={{ backgroundColor: isAutoMode ? '#FF5722' : '#4CAF50' }}
-            >
-              {isAutoMode ? 'כבה ניטור אוטומטי' : 'הפעל ניטור אוטומטי'}
-            </Button>
-          </Tooltip>
+      <CheckAge />
+      {!isLoggedIn ? (
+        <LoginRegister onLogin={() => setIsLoggedIn(true)} />
+      ) : (
+        <Grid container spacing={3} style={{ maxWidth: '1200px', margin: '0 auto', height: '90vh' }}>
+          <Grid item xs={12} md={6} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <Typography variant="h2" gutterBottom style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>
+              מראה חכמה
+            </Typography>
+            <Typography variant="h5" style={{ color: '#fff', textAlign: 'center' }}>
+              נטר את מצב הרוח שלך לאורך היום!
+            </Typography>
+            <Typography variant="body1" style={{ color: '#fff', textAlign: 'center' }}>
+              האפליקציה הזו תעזור לך לעקוב אחר מצב הרוח שלך לאורך היום. באמצעות טכנולוגיית זיהוי פנים, נוכל לזהות את ההבעה שלך ולעזור לך להבין איך אתה מרגיש.
+            </Typography>
+            <FaceDetection onExpressionsChange={setExpressions} isAutoMode={isAutoMode} />
+            {Object.keys(expressions).length > 0 && <MoodMessages expressions={expressions} addMoodRecord={addMoodRecord} />}
+            <Tooltip title="הניטור האוטומטי יבדוק את מצב הרוח שלך כל דקה ויעדכן את הטבלה והגרף באופן אוטומטי." arrow>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setIsAutoMode(!isAutoMode)}
+                style={{ backgroundColor: isAutoMode ? '#FF5722' : '#4CAF50' }}
+              >
+                {isAutoMode ? 'כבה ניטור אוטומטי' : 'הפעל ניטור אוטומטי'}
+              </Button>
+            </Tooltip>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <MoodHistoryTable history={moodHistory} />
+          </Grid>
+          <Grid item xs={12}>
+            <MoodChart history={moodHistory} />
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <MoodHistoryTable history={moodHistory} />
-        </Grid>
-        <Grid item xs={12}>
-          <MoodChart history={moodHistory} />
-        </Grid>
-      </Grid>
+      )}
     </Background>
   );
 };

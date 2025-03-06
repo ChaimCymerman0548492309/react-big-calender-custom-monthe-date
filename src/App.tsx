@@ -14,10 +14,11 @@ import CheckboxesTags from "./Components/CheckboxesTags/CheckboxesTags";
 import CheckboxesTags2 from "./Components/CheckboxesTags/CheckboxesTags2";
 import AIFace from "./Components/AIFace/AIFace";
 import AIFace2 from "./Components/AIFace/AIFace2";
+import Bee from "./Components/Bee/Bee";
 
 function App() {
   return (
-    <div style={{ height: "95vh" }}>
+    <div style={{ height: "95vh" ,width : '100%'}}>
       {/* <BasicCalendar /> */}
       {/* <CalenterWtoutALib/> */}
       {/* <ControlCalendar /> */}
@@ -29,6 +30,7 @@ function App() {
     {/* <CheckboxesTags/> */}
     {/* <CheckboxesTags2></CheckboxesTags2> */}
     {/* <AIFace/> */}
+    {/* <Bee/> */}
     <AIFace2 />
     </div>
   );

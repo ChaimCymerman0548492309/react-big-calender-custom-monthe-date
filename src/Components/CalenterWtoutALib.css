@@ -1,3 +1,10 @@
+
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+
 /* Base container styles */
 .calendar-container {
     width: 100%;
