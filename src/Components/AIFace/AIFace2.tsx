@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
-import { Grid, Paper, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, styled, CircularProgress, Tooltip, TextField } from '@mui/material';
+import { Grid, Paper, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, styled, CircularProgress, Tooltip, TextField, AppBar, Toolbar } from '@mui/material';
 import { Box } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import CheckAge from './CheckAge';
@@ -309,21 +309,24 @@ const MoodChart: React.FC<{ history: { time: string, mood: string }[] }> = ({ hi
   );
 };
 
-const LoginRegister: React.FC<{ onLogin: () => void , setUserId: any}> = ({ onLogin , setUserId}) => {
+const LoginRegister: React.FC<{ onLogin: () => void , setUserId: any ,setIsUserLogin : any}> = ({ onLogin , setUserId , setIsUserLogin}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
+    
     try {
       console.log(email);
       
       setUserId(email);
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
+        setIsUserLogin(false);
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
+        setIsUserLogin(false);
       }
       onLogin();
     } catch (err : any) {
@@ -364,12 +367,16 @@ const LoginRegister: React.FC<{ onLogin: () => void , setUserId: any}> = ({ onLo
   );
 };
 
+
+
+
 const AIFace2: React.FC = () => {
   const [expressions, setExpressions] = useState<{ [key: string]: number }>({});
   const [moodHistory, setMoodHistory] = useState<{ time: string, mood: string }[]>([]);
   const [isAutoMode, setIsAutoMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isUserLogin, setIsUserLogin] = useState(false);
 
   const addMoodRecord = (mood: string) => {
     const time = new Date().toLocaleTimeString();
@@ -400,9 +407,28 @@ const AIFace2: React.FC = () => {
 
   return (
     <Background>
+      {/* AppBar עם כפתורי התחברות והרשמה */}
+      <AppBar  style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', boxShadow: 'none' }}>
+        <Toolbar>
+          <Typography variant="h6" style={{ flexGrow: 1, color: '#4CAF50' }}>
+            {userId ? `ברוך הבא ${userId}` : 'ברוך הבא אורח'}
+          </Typography>
+          {/* {!isLoggedIn && ( */}
+            <>
+              <Button color="inherit" onClick={() => setIsUserLogin(true)} style={{ color: '#4CAF50' }}>
+                התחברות
+              </Button>
+              {/* <Button color="inherit" onClick={() => setIsLoggedIn(true)} style={{ color: '#4CAF50' }}>
+                הרשמה
+              </Button> */}
+            </>
+          {/* )} */}
+        </Toolbar>
+      </AppBar>
+
       <CheckAge />
-      {!isLoggedIn ? (
-        <LoginRegister onLogin={() => setIsLoggedIn(true)} setUserId={setUserId} />
+      {isUserLogin ? (
+        <LoginRegister onLogin={() => setIsLoggedIn(true)} setUserId={setUserId} setIsUserLogin={setIsUserLogin}/>
       ) : (
         <Grid container spacing={3} style={{ maxWidth: '1200px', margin: '0 auto', height: '90vh' }}>
           <Grid item xs={12} md={6} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -435,9 +461,10 @@ const AIFace2: React.FC = () => {
             <MoodChart history={moodHistory} />
           </Grid>
         </Grid>
-      )}
+      )} 
     </Background>
   );
 };
 
 export default AIFace2;
+
