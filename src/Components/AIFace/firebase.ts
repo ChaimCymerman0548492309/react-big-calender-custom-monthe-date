@@ -1,3 +1,6 @@
+// Add this line to make the file a module
+export {};
+
 // Import the functions you need from the Firebase SDKs
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
@@ -12,7 +15,7 @@ const firebaseConfig = {
     messagingSenderId: "183243902361",
     appId: "1:183243902361:web:df56e10bd75bf2108f9708",
     measurementId: "G-QDY4FLGG8C"
-  }
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
