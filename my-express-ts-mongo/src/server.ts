@@ -116,3 +116,6 @@ app.post('/api/moods', async (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`✅ Server is running  Successfully on http://localhost:${PORT}`);
 });
+
+
+
