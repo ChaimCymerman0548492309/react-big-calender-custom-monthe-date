@@ -7,7 +7,8 @@ import CheckAge from './CheckAge';
 import { auth } from './firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = 'https://ai-face-server2-1.onrender.com';
+// const SERVER_URL = 'http://localhost:5000';
 // רקע עם תמונה סטטית מ-Unsplash
 const Background = styled('div')({
   backgroundImage: 'url(https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80)',
