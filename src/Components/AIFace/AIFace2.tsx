@@ -137,7 +137,6 @@ const FaceDetection: React.FC<{
       return () => clearInterval(interval);
     }
   }, [isAutoMode, isDetectionActive]);
-
   return (
     <StyledPaper>
       {isLoading && (
