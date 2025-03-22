@@ -141,7 +141,6 @@ const FaceDetection: React.FC<{
   return (
     <StyledPaper>
       {isLoading && (
-        
         <Box
           display="flex"
           justifyContent="center"
