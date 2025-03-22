@@ -141,6 +141,7 @@ const FaceDetection: React.FC<{
   return (
     <StyledPaper>
       {isLoading && (
+        
         <Box
           display="flex"
           justifyContent="center"
@@ -189,6 +190,8 @@ const FaceDetection: React.FC<{
       )}
     </StyledPaper>
   );
+      console.log("🚀 ~ isLoading:", isLoading)
+      console.log("🚀 ~ isLoading:", isLoading)
 };
 
 const MoodMessages: React.FC<{
