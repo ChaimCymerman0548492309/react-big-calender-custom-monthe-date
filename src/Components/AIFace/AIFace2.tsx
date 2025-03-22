@@ -132,7 +132,8 @@ const FaceDetection: React.FC<{
     if (isAutoMode && isDetectionActive) {
       const interval = setInterval(() => {
         detectFaces();
-      }, 60000);
+      }, 1000);
+      // }, 60000);
       return () => clearInterval(interval);
     }
   }, [isAutoMode, isDetectionActive]);
@@ -479,6 +480,20 @@ const LoginRegister: React.FC<{
   );
 };
 
+const requestNotificationPermission = async () => {
+  if ("Notification" in window) {
+    if (Notification.permission === "default") {
+      await Notification.requestPermission();
+    }
+  }
+};
+
+const sendNotification = (message : string) => {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification("Mood Tracker", { body: message });
+  }
+};
+
 const AIFace2: React.FC = () => {
   const [expressions, setExpressions] = useState<{ [key: string]: number }>({});
   const [moodHistory, setMoodHistory] = useState<
@@ -491,82 +506,51 @@ const AIFace2: React.FC = () => {
   const [backgroundColor, setBackgroundColor] = useState(
     "rgba(255, 255, 255, 0.9)"
   );
-  const [currentView, setCurrentView] = useState<"table" | "chart">("table"); // State to manage current view
+  const [currentView, setCurrentView] = useState<"table" | "chart">("table");
+  const [lastMood, setLastMood] = useState<string | null>(null);
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   const addMoodRecord = (mood: string) => {
     const time = new Date().toLocaleTimeString();
     setMoodHistory([...moodHistory, { time, mood }]);
-  };
-
-  const fetchMoodHistory = async (userId: string) => {
-    try {
-      const response = await fetch(`${SERVER_URL}/api/moods/${userId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch mood history");
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching mood history:", error);
-      return [];
+    if (lastMood !== mood) {
+      sendNotification(`מצב הרוח שלך השתנה ל: ${mood}`);
+      setLastMood(mood);
     }
   };
-
-  useEffect(() => {
-    if (isLoggedIn && userId) {
-      fetchMoodHistory(userId).then((data) => {
-        setMoodHistory(data);
-      });
-    }
-  }, [isLoggedIn, userId]);
 
   return (
     <Background>
-      {/* AppBar with Login/Register Buttons */}
-      <AppBar
-        style={{
-          // backgroundColor: "rgba(255, 255, 255, 0.9)",
-          boxShadow: "none",
-          backgroundColor: backgroundColor,
-          // height : "50px",
-        }}
-      >
-        <ColorPicker setBackgroundColor={setBackgroundColor}/>
-
+      <AppBar style={{ boxShadow: "none", backgroundColor: backgroundColor }}>
+        <ColorPicker setBackgroundColor={setBackgroundColor} />
         <Toolbar>
           <Typography variant="h6" style={{ flexGrow: 1, color: "#4CAF50" }}>
             {userId ? `ברוך הבא ${userId}` : "ברוך הבא אורח"}
           </Typography>
-          {/* {!isLoggedIn && ( */}
-          <>
-            <Button
-              onClick={() => setCurrentView("table")}
-              style={{
-                color: currentView === "table" ? "#4CAF50" : "#757575",
-              }}
-            >
-              טבלה
-            </Button>
-            <Button
-              onClick={() => setCurrentView("chart")}
-              style={{
-                color: currentView === "chart" ? "#4CAF50" : "#757575",
-              }}
-            >
-              גרף
-            </Button>
-            <Button
-              color="inherit"
-              onClick={() => setIsUserLogin(true)}
-              style={{ color: "#4CAF50" }}
-            >
-              התחברות
-            </Button>
-          </>
-          {/* )} */}
+          <Button
+            onClick={() => setCurrentView("table")}
+            style={{ color: currentView === "table" ? "#4CAF50" : "#757575" }}
+          >
+            טבלה
+          </Button>
+          <Button
+            onClick={() => setCurrentView("chart")}
+            style={{ color: currentView === "chart" ? "#4CAF50" : "#757575" }}
+          >
+            גרף
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => setIsUserLogin(true)}
+            style={{ color: "#4CAF50" }}
+          >
+            התחברות
+          </Button>
         </Toolbar>
       </AppBar>
-
       <CheckAge />
       {isUserLogin ? (
         <LoginRegister
@@ -593,20 +577,6 @@ const AIFace2: React.FC = () => {
             >
               מראה חכמה
             </Typography>
-            <Typography
-              variant="h5"
-              style={{ color: "#fff", textAlign: "center" }}
-            >
-              נטר את מצב הרוח שלך לאורך היום!
-            </Typography>
-            <Typography
-              variant="body1"
-              style={{ color: "#fff", textAlign: "center" }}
-            >
-              האפליקציה הזו תעזור לך לעקוב אחר מצב הרוח שלך לאורך היום. באמצעות
-              טכנולוגיית זיהוי פנים, נוכל לזהות את ההבעה שלך ולעזור לך להבין איך
-              אתה מרגיש.
-            </Typography>
             <FaceDetection
               onExpressionsChange={setExpressions}
               isAutoMode={isAutoMode}
@@ -618,10 +588,7 @@ const AIFace2: React.FC = () => {
                 userId={userId!}
               />
             )}
-            <Tooltip
-              title="הניטור האוטומטי יבדוק את מצב הרוח שלך כל דקה ויעדכן את הטבלה והגרף באופן אוטומטי."
-              arrow
-            >
+            <Tooltip title="ניטור אוטומטי יעדכן את מצב הרוח כל דקה." arrow>
               <Button
                 variant="contained"
                 color="primary"
@@ -631,26 +598,7 @@ const AIFace2: React.FC = () => {
                 {isAutoMode ? "כבה ניטור אוטומטי" : "הפעל ניטור אוטומטי"}
               </Button>
             </Tooltip>
-
-            {/* Buttons to Switch Between Table and Chart
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => setCurrentView('table')}
-              style={{ marginTop: '10px', backgroundColor: currentView === 'table' ? '#4CAF50' : '#757575' }}
-            >
-  </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => setCurrentView('chart')}
-              style={{ marginTop: '10px', backgroundColor: currentView === 'chart' ? '#4CAF50' : '#757575' }}
-            >
- מעבר לגרף
-            </Button> */}
           </Grid>
-
-          {/* Display Table or Chart Based on Current View */}
           <Grid item xs={12} md={6}>
             {currentView === "table" && (
               <MoodHistoryTable history={moodHistory} />
