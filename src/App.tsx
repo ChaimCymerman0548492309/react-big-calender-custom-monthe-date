@@ -15,23 +15,25 @@ import CheckboxesTags2 from "./Components/CheckboxesTags/CheckboxesTags2";
 import AIFace from "./Components/AIFace/AIFace";
 import AIFace2 from "./Components/AIFace/AIFace2";
 import Bee from "./Components/Bee/Bee";
+import ChaimCymermanWebsite from "./Components/ChaimCymermanWebsite/ChaimCymermanWebsite";
 
 function App() {
   return (
-    <div style={{ height: "95vh" ,width : '100%'}}>
+    <div style={{ height: "95vh", width: "100%" }}>
       {/* <BasicCalendar /> */}
       {/* <CalenterWtoutALib/> */}
       {/* <ControlCalendar /> */}
       {/* <CustomizingCalendar /> */}
       {/* <AdvancedCalendar /> */}
       {/* <Game/> */}
-    {/* <ReactThreeFiber/> */}
-    {/* <ChipComp/> */}
-    {/* <CheckboxesTags/> */}
-    {/* <CheckboxesTags2></CheckboxesTags2> */}
-    {/* <AIFace/> */}
-    {/* <Bee/> */}
-    <AIFace2 />
+      {/* <ReactThreeFiber/> */}
+      {/* <ChipComp/> */}
+      {/* <CheckboxesTags/> */}
+      {/* <CheckboxesTags2></CheckboxesTags2> */}
+      {/* <AIFace/> */}
+      {/* <Bee/> */}
+      <AIFace2 />
+      {/* <ChaimCymermanWebsite /> */}
     </div>
   );
 }
