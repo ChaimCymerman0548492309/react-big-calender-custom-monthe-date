@@ -16,6 +16,7 @@ import AIFace from "./Components/AIFace/AIFace";
 import AIFace2 from "./Components/AIFace/AIFace2";
 import Bee from "./Components/Bee/Bee";
 import ChaimCymermanWebsite from "./Components/ChaimCymermanWebsite/ChaimCymermanWebsite";
+import Calendar from "./Components/Calendar";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
       {/* <CheckboxesTags2></CheckboxesTags2> */}
       {/* <AIFace/> */}
       {/* <Bee/> */}
+      {/* <Calendar/> */}
       <AIFace2 />
       {/* <ChaimCymermanWebsite /> */}
     </div>

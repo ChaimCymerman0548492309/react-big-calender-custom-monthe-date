@@ -1,60 +1,108 @@
-
-.rbc-day-slot .rbc-event, .rbc-day-slot .rbc-background-event{
-    border: 1px solid #265985;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: grid
-;
-    max-height: 5%;
-    min-height: 20px;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-flow: column wrap;
-    flex-flow: column wrap;
-    -webkit-box-align: start;
-    -ms-flex-align: start;
-    align-items: flex-start;
-    overflow: visible;
-    /* position: static;     */
-    min-width: 100%;
-    margin: 2px;
-    border-radius: 5px;
-    background-color: #aee4ff;
-    color: black;
+/* בסיס לכל האירועים */
+.rbc-day-slot .rbc-event,
+.rbc-day-slot .rbc-background-event {
+  /* מיקום ופריסה */
+  display: block;
+  position: relative;
+  min-width: calc(100% - 4px);
+  min-height: 24px;
+  margin: 2px;
+  
+  /* עיצוב ויזואלי */
+  border-left: 4px solid #1a5276; /* פס צד בצבע כהה */
+  border-radius: 3px;
+  background-color: #eaf2f8; /* רקע כחול בהיר */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  
+  /* טקסט */
+  color: #1a5276; /* צבע כחול כהה */
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 2px 5px;
+  
+  /* התנהגות */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.rbc-event {
-    /* cursor: move; Indicate draggable events */
-  }
-  
-
-.rbc-day-slot .rbc-event, .rbc-day-slot .rbc-background-event{
-    /* TODO העיצוב כמו בCTRL_SHIFT */
-    display: grid;
-    max-height: 5%;
-    min-height: 20px;
-    position: static;
-    min-width: 100%;
-    margin: 2px;
-    border-radius: 5px;
-    background-color: #aee4ff;
-    color: black;
+/* אירועים במעבר עכבר */
+.rbc-event:hover {
+  background-color: #d4e6f1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
 }
 
-/* Default styles for events container */
-.rbc-day-slot .rbc-events-container {
-    top: 0;
+/* כותרת האירוע */
+.rbc-event-content {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* זמן האירוע */
+.rbc-event-time {
+  font-weight: bold;
+  margin-right: 5px;
+  color: #2874a6;
+}
+
+/* סגנונות לפי סוג אירוע */
+.rbc-event.work {
+  border-left-color: #1a5276;
+  background-color: #eaf2f8;
+}
+
+.rbc-event.personal {
+  border-left-color: #27ae60;
+  background-color: #e8f8f0;
+}
+
+.rbc-event.important {
+  border-left-color: #c0392b;
+  background-color: #fadbd8;
+}
+
+/* תצוגת שבוע */
+.rbc-view.week .rbc-day-slot .rbc-events-container {
+  top: 40px;
+}
+
+/* תצוגת יום */
+.rbc-view.day .rbc-day-slot .rbc-events-container {
+  top: 30px;
+}
+
+/* התאמות למובייל */
+@media (max-width: 768px) {
+  .rbc-day-slot .rbc-event {
+    font-size: 12px;
+    min-height: 22px;
   }
   
-  /* Week view styles */
-  .week .rbc-day-slot .rbc-events-container {
-    top: 50px;
-    background-color: red;
+  .rbc-event-time {
+    display: inline;
   }
-  
-  /* Day view styles */
-  .day .rbc-day-slot .rbc-events-container {
-    top: 30px;
-    background-color: aqua;
-  }
-  
+}
+
+/* אפקט גרירה */
+.rbc-addons-dnd .rbc-addons-dnd-drag-preview {
+  opacity: 0.9;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: scale(1.02);
+  z-index: 100;
+}
+
+/* אירועים רקע (למשל שעות לא זמינות) */
+.rbc-background-event {
+  opacity: 0.6;
+  background-color: #f2f4f4;
+  border-left-color: #95a5a6;
+}
+
+.rbc-month-row{
+  overflow: visible !important;
+}
