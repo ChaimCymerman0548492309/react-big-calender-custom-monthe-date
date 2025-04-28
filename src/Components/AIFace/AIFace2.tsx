@@ -527,7 +527,7 @@ const AIFace2: React.FC = () => {
   return (
     <Background>
       <AppBar style={{ boxShadow: "none", backgroundColor: backgroundColor }}>
-        <ColorPicker setBackgroundColor={setBackgroundColor} />
+        {/* <ColorPicker setBackgroundColor={setBackgroundColor} /> */}
         <Toolbar>
           <Typography variant="h6" style={{ flexGrow: 1, color: "#4CAF50" }}>
             {userId ? `ברוך הבא ${userId}` : "ברוך הבא אורח"}
