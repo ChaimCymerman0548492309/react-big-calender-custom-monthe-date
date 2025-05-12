@@ -514,6 +514,32 @@ const AIFace2: React.FC = () => {
   useEffect(() => {
     requestNotificationPermission();
   }, []);
+useEffect(() => {
+  const saveMood = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/api/moods/${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // body: JSON.stringify({ userId, mood }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save mood");
+      }
+
+      const data = await response.json();
+      setMoodHistory(data);
+      console.log("Mood saved:", data);
+    } catch (error) {
+      console.error("Error saving mood:", error);
+    }
+
+  };
+
+  saveMood();
+}, [userId]);
 
   const addMoodRecord = (mood: string) => {
     const time = new Date().toLocaleTimeString();
