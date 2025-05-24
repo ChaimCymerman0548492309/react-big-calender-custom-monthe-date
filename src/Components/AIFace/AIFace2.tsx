@@ -98,7 +98,6 @@ const FaceDetection: React.FC<{
   const [isCameraStarted, setIsCameraStarted] = useState(false);
   const [isDetectionActive, setIsDetectionActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  console.log("🚀 ~ isLoading:", isLoading);
   
   const [status, setStatus] = useState<{
     message: string;
