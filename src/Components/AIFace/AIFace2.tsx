@@ -51,7 +51,37 @@ const Background = styled("div")({
   alignItems: "center",
   justifyContent: "center",
 });
+const UserMessage = ({
+  message,
+  severity = "info",
+}: {
+  message: string;
+  severity?: "info" | "warning" | "error" | "success";
+}) => {
+  const colors = {
+    info: "#2196F3",
+    warning: "#FF9800",
+    error: "#F44336",
+    success: "#4CAF50",
+  };
 
+  return (
+    <Box
+      sx={{
+        backgroundColor: colors[severity],
+        color: "white",
+        padding: "10px",
+        borderRadius: "4px",
+        margin: "10px 0",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+      }}
+    >
+      <Typography variant="body1">{message}</Typography>
+    </Box>
+  );
+};
 // עיצוב כללי
 const StyledPaper = styled(Paper)({
   padding: "20px",
@@ -68,78 +98,169 @@ const FaceDetection: React.FC<{
   const [isCameraStarted, setIsCameraStarted] = useState(false);
   const [isDetectionActive, setIsDetectionActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  console.log("🚀 ~ isLoading:", isLoading);
+  
+  const [status, setStatus] = useState<{
+    message: string;
+    severity: "info" | "warning" | "error" | "success";
+  }>({ message: "", severity: "info" });
 
-  const loadModels = async () => {
-    try {
-      console.log("Loading models...");
-      setIsLoading(true);
-      await faceapi.nets.ssdMobilenetv1.loadFromUri(
-        "/models/face-api.js-models-master/face-api.js-models-master/ssd_mobilenetv1"
-      );
-      await faceapi.nets.faceExpressionNet.loadFromUri(
-        "/models/face-api.js-models-master/face-api.js-models-master/face_expression"
-      );
-      console.log("Models loaded successfully");
-      setIsLoading(false);
+  const setStatusMessage = (
+    message: string,
+    severity: "info" | "warning" | "error" | "success" = "info"
+  ) => {
+    setStatus({ message, severity });
+  };
+  
+ const loadModels = async () => {
+   try {
+     console.log("Loading models...");
+     setIsLoading(true);
+     setStatusMessage("טוען מודלים של זיהוי פנים... זה עשוי לקחת כמה רגעים");
+     await faceapi.nets.ssdMobilenetv1.loadFromUri(
+       "/models/face-api.js-models-master/face-api.js-models-master/ssd_mobilenetv1"
+     );
+     setStatusMessage("טוען מודלים של זיהוי הבעות... כמעט סיימנו");
+     await faceapi.nets.faceExpressionNet.loadFromUri(
+       "/models/face-api.js-models-master/face-api.js-models-master/face_expression"
+     );
+     setStatusMessage("המודלים נטענו בהצלחה!");
+     setIsLoading(false);
+   } catch (err) {
+     setStatusMessage("שגיאה בטעינת המודלים. נסה לרענן את הדף", "error");
+     setIsLoading(false);
+   }
+ };
+
+ const startCamera = async () => {
+   try {
+     setStatusMessage("מבקש הרשאה לשימוש במצלמה...");
+     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+     if (videoRef.current) {
+       videoRef.current.srcObject = stream;
+     }
+     setIsCameraStarted(true);
+     setStatusMessage("המצלמה מופעלת! עכשיו אפשר להתחיל ניטור", "success");
     } catch (err) {
-      console.error("Failed to load models:", err);
-      setIsLoading(false);
+      setStatusMessage("לא ניתן לגשת למצלמה. אנא בדוק את ההרשאות שלך", "error");
     }
   };
-
-  const startCamera = async () => {
-    try {
-      console.log("Starting camera...");
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setIsCameraStarted(true);
-      console.log("Camera started successfully");
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-    }
-  };
-
+  
   const detectFaces = async () => {
-    console.log("Detecting faces...");
-    if (videoRef.current && isCameraStarted) {
-      try {
-        console.log("Detecting faces...");
-        const detections = await faceapi
-          .detectAllFaces(videoRef.current, new faceapi.SsdMobilenetv1Options())
-          .withFaceExpressions();
+    setIsLoading(true);
+    console.log("Starting face detection...");
+    // setStatusMessage("המצלמה מופעלת! מתחיל ניטור המודלים בטעינה ", "success");
+    
+  setStatusMessage("מתחיל לנתח הבעות פנים...", "info");
 
-        if (detections.length > 0) {
-          const expressions = detections[0].expressions as unknown as {
-            [key: string]: number;
-          };
-          onExpressionsChange(expressions);
-        }
-      } catch (err) {
-        console.error("Error detecting faces:", err);
-      }
+  if (!videoRef.current) {
+    console.error("Video element not available");
+    setStatusMessage("שגיאה: אלמנט וידאו לא זמין", "error");
+    return;
+  }
+
+  if (!isCameraStarted) {
+    console.error("Camera not started");
+    setStatusMessage("שגיאה: המצלמה לא מופעלת", "error");
+    return;
+  }
+
+  try {
+    setStatusMessage("מזהה פנים ומנתח הבעות...", "info");
+
+    // שלב 1: זיהוי פנים
+    const detections = await faceapi
+      .detectAllFaces(videoRef.current, new faceapi.SsdMobilenetv1Options())
+      .withFaceExpressions();
+
+    if (detections.length === 0) {
+      console.log("No faces detected");
+      setStatusMessage("לא זוהתה פנים במסגרת. נסה להתקרב למצלמה", "warning");
+      return;
     }
-  };
 
-  const startDetection = async () => {
+    // שלב 2: עיבוד הבעות פנים
+    const expressions = detections[0].expressions as unknown as {
+      [key: string]: number;
+    };
+    setIsLoading(false);
+    
+    setStatusMessage("הבעות פנים זוהו בהצלחה!", "success");
+
+    console.log("Face expressions detected:", expressions);
+    setStatusMessage("הבעות פנים נותחו בהצלחה!", "success");
+
+    // שלב 3: העברת הנתונים לקומפוננטה האב
+    onExpressionsChange(expressions);
+  } catch (err) {
+    console.error("Error detecting faces:", err);
+    setStatusMessage("שגיאה בניתוח הבעות פנים. נסה שוב", "error");
+
+    // ניסיון חוזר אוטומטי לאחר 3 שניות
+    setTimeout(() => {
+      setStatusMessage("מנסה שוב לנתח הבעות פנים...", "info");
+      detectFaces();
+    }, 3000);
+  }
+};
+
+const startDetection = async () => {
+  try {
+    setStatusMessage("מתחיל תהליך ניטור מצב רוח...", "info");
+
+    // שלב 1: טעינת מודלים
+    setStatusMessage("טוען מודלים של זיהוי פנים...", "info");
     await loadModels();
+
+    // שלב 2: הפעלת מצלמה
+    setStatusMessage("מתחבר למצלמה...", "info");
     await startCamera();
+
+    // שלב 3: הפעלת זיהוי
     setIsDetectionActive(true);
-  };
+    setStatusMessage("המערכת מוכנה! ניתן להתחיל ניטור", "success");
+
+    // אם במצב אוטומטי - מתחיל ניטור מיידי
+    if (isAutoMode) {
+      setStatusMessage("מתחיל ניטור אוטומטי של הבעות פנים...", "info");
+      detectFaces();
+    }
+  } catch (err) {
+    console.error("Failed to start detection:", err);
+    setStatusMessage("שגיאה בהפעלת המערכת. נסה לרענן את הדף", "error");
+
+    // הצעה למשתמש כיצד לפתור את הבעיה
+    setTimeout(() => {
+      setStatusMessage(
+        "טיפ: ודא שהמצלמה מחוברת וקיבלת הרשאה לשימוש בה",
+        "info"
+      );
+    }, 3000);
+  }
+};
+
+  // const startDetection = async () => {
+  //   await loadModels();
+  //   await startCamera();
+  //   setIsDetectionActive(true);
+  // };
 
   useEffect(() => {
     if (isAutoMode && isDetectionActive) {
       const interval = setInterval(() => {
         detectFaces();
-      }, 1000);
-      // }, 60000);
+      // }, 1000);
+      }, 60000);
       return () => clearInterval(interval);
     }
   }, [isAutoMode, isDetectionActive]);
 
   return (
     <StyledPaper>
+      {status.message && (
+        <UserMessage message={status.message} severity={status.severity} />
+      )}
+
       {isLoading && (
         <Box
           display="flex"
@@ -189,8 +310,8 @@ const FaceDetection: React.FC<{
       )}
     </StyledPaper>
   );
-      console.log("🚀 ~ isLoading:", isLoading)
-      console.log("🚀 ~ isLoading:", isLoading)
+  console.log("🚀 ~ isLoading:", isLoading);
+  console.log("🚀 ~ isLoading:", isLoading);
 };
 
 const MoodMessages: React.FC<{
@@ -510,6 +631,60 @@ const AIFace2: React.FC = () => {
   );
   const [currentView, setCurrentView] = useState<"table" | "chart">("table");
   const [lastMood, setLastMood] = useState<string | null>(null);
+  const [status, setStatus] = useState<{
+    message: string;
+    severity: "info" | "warning" | "error" | "success";
+  }>({ message: "", severity: "info" });
+
+  const setStatusMessage = (
+    message: string,
+    severity: "info" | "warning" | "error" | "success" = "info"
+  ) => {
+    setStatus({ message, severity });
+  };
+
+  const addMoodRecord = (mood: string) => {
+    const time = new Date().toLocaleTimeString();
+    setMoodHistory([...moodHistory, { time, mood }]);
+    setStatusMessage(`נרשם מצב רוח חדש: ${mood} בשעה ${time}`, "success");
+    if (lastMood !== mood) {
+      sendNotification(`מצב הרוח שלך השתנה ל: ${mood}`);
+      setLastMood(mood);
+    }
+  };
+
+  useEffect(() => {
+    const saveMood = async () => {
+      try {
+        setStatusMessage("טוען את היסטוריית מצבי הרוח שלך...");
+
+        const response = await fetch(`${SERVER_URL}/api/moods/${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load mood history");
+        }
+
+        const data = await response.json();
+        setMoodHistory(data);
+        setStatusMessage(
+          `נטענו ${data.length} רשומות מהיסטוריית מצבי הרוח שלך`,
+          "success"
+        );
+      } catch (error) {
+        setStatusMessage("שגיאה בטעינת היסטוריית מצבי הרוח", "error");
+      }
+    };
+
+    if (userId) {
+      saveMood();
+    }
+  }, [userId]);
+
 
   useEffect(() => {
     requestNotificationPermission();
@@ -541,17 +716,22 @@ useEffect(() => {
   saveMood();
 }, [userId]);
 
-  const addMoodRecord = (mood: string) => {
-    const time = new Date().toLocaleTimeString();
-    setMoodHistory([...moodHistory, { time, mood }]);
-    if (lastMood !== mood) {
-      sendNotification(`מצב הרוח שלך השתנה ל: ${mood}`);
-      setLastMood(mood);
-    }
-  };
+  // const addMoodRecord = (mood: string) => {
+  //   const time = new Date().toLocaleTimeString();
+  //   setMoodHistory([...moodHistory, { time, mood }]);
+  //   if (lastMood !== mood) {
+  //     sendNotification(`מצב הרוח שלך השתנה ל: ${mood}`);
+  //     setLastMood(mood);
+  //   }
+  // };
 
   return (
     <Background>
+      {status.message && (
+        <Box sx={{ position: "fixed", bottom: 20, right: 20, zIndex: 1000 }}>
+          <UserMessage message={status.message} severity={status.severity} />
+        </Box>
+      )}
       <AppBar style={{ boxShadow: "none", backgroundColor: backgroundColor }}>
         {/* <ColorPicker setBackgroundColor={setBackgroundColor} /> */}
         <Toolbar>
